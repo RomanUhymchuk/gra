@@ -1,6 +1,11 @@
-from direct.gui.OnscreenImage import OnscreenImage
-from panda3d.core import TransparencyAttrib
-from panda3d.core import WindowProperties
+from direct.gui.OnscreenImage import OnscreenImage  # Імпорт класу для роботи з зображеннями на екрані
+from panda3d.core import TransparencyAttrib  # Імпорт атрибута прозорості
+from panda3d.core import WindowProperties  # Імпорт класу для налаштування вікна
+from direct.showbase.ShowBase import ShowBase  # Імпорт базового класу для гри
+from panda3d.core import CollisionTraverser, CollisionNode, CollisionRay, CollisionHandlerQueue
+from direct.gui.OnscreenImage import OnscreenImage  # Імпорт класу для роботи з зображеннями на екрані
+from panda3d.core import BitMask32  # Імпорт класу для бітових масок
+
 
 key_switch_camera = 'c' 
 key_switch_mode = 'z' 
@@ -27,6 +32,36 @@ class Hero():
 
         self.cameraBind()
         self.accept_events()
+
+        self.grass_block = 'grass-block.glb'
+        self.dirt_block  = "dirt-block.glb"
+        self.stone_block = "stone-block.glb"
+
+        self.rayQueue = CollisionHandlerQueue()
+        self.traverser = CollisionTraverser()
+
+        ray = CollisionRay()
+        ray.setOrigin(0,0,0)
+        ray.setDirection(0,1,0)
+        rayNode = CollisionNode("ray")    
+        rayNode.addSolid(ray)
+        rayNode.setCollisionMask(BitMask32.bit(1))
+        self.rayNodePath = base.camera.attachNewNode(rayNode)
+        self.traverser.addCollider(rayNodePath, self.rayQueue)
+        self.rayNodePath.show()
+        self.mouseLookEnabled = True
+    def mouseTask(self):
+        if self.mouseLookEnabled and base.mouseWatcher.Node.hasMouse:
+            mX = base.win.getPointer(0).getX()
+            mY = base.win.getPointer(0).getY()
+            deltaX = (mX - base.win.getXSize())//2
+            deltaY = (mY - base.win.getYSize())//2
+            self.hero.setH(self.hero.getH() - deltaX*0.1)
+            self.hero.setH(self.hero.getP() - deltaY*(-0.1))
+
+            base.win.movePointer(0,base.win.getXSize()//2 ,base.win.getYSize()//2)
+
+        return task.cont
 
     def cameraBind(self):
         base.disableMouse()

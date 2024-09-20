@@ -1,3 +1,5 @@
+from panda3d.core import  CollisionNode, CollisionBox
+
 class Mapmanager():
     def __init__(self):
         self.grass_block = 'grass-block.glb'
@@ -11,7 +13,12 @@ class Mapmanager():
         self.model.setScale(1,1,1)
         self.model.setHpr(0,90,0)
         self.model.reparentTo(render)
-        
+        self.blocks.append(block_model)
+        blockSolid = CollisionBox((-1,-1,-1),(1,1,1))
+        blockNode = CollisionNode("block-collision-node")
+        blockNode = addSolid (blockSolid)
+        collider = block_model.attachNewNode(blockNode)
+        collider.setPythonTag("owner",block_model)
     def startNew(self):
         self.land = render.attachNewNode("Land")
         
